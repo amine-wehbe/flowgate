@@ -1,6 +1,6 @@
 # Flowgate
 
-A self-hosted HTTP/HTTPS intercepting proxy with a live inspection UI. Think simplified Burp Suite + Charles Proxy, built from scratch.
+A self-hosted HTTP/HTTPS intercepting proxy with a live inspection UI. Inspired by Burp Suite/Charles Proxy, built from scratch.
 
 ## Stack
 
@@ -40,7 +40,7 @@ To capture browser traffic, set your system proxy to `localhost:8080` for both H
 - Web Proxy (HTTP): `localhost:8080`
 - Secure Web Proxy (HTTPS): `localhost:8080`
 
-Remember to disable the proxy when done.
+Remember to disable the proxy when done!! As to not log all of your traffic.
 
 ## Configure mkcert Volume
 
