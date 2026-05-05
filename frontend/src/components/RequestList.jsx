@@ -14,14 +14,16 @@ function RequestList({ requests, selected, onSelect, onClear }) {
         <span>Status</span>
         <span>Duration</span>
       </div>
-      {requests && requests.map((req) => (
+      {requests && requests.length > 0 ? requests.map((req) => (
         <RequestItem
           key={req.id || req.url + req.captured_at}
           request={req}
           isSelected={selected === req}
           onSelect={onSelect}
         />
-      ))}
+      )) : (
+        <div className="empty-list">No requests to display</div>
+      )}
     </div>
   );
 }
