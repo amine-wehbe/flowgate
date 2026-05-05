@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,10 +18,34 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-// Returns all captured requests from DB ordered by most recent first
+// Returns captured requests from DB, optionally filtered by method, status prefix, and URL keyword
 func getRequests(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rows, err := pool.Query(r.Context(), "SELECT * FROM requests ORDER BY captured_at DESC;")
+		method := r.URL.Query().Get("method")
+		status := r.URL.Query().Get("status")
+		search := r.URL.Query().Get("search")
+
+		query := "SELECT * FROM requests WHERE 1=1"
+		args := []any{}
+		i := 1
+		if method != "" {
+			query += fmt.Sprintf(" AND method = $%d", i)
+			args = append(args, method)
+			i++
+		}
+		if status != "" {
+			query += fmt.Sprintf(" AND CAST(res_status AS TEXT) LIKE $%d", i)
+			args = append(args, status+"%")
+			i++
+		}
+		if search != "" {
+			query += fmt.Sprintf(" AND url ILIKE $%d", i)
+			args = append(args, "%"+search+"%")
+			i++
+		}
+		query += " ORDER BY captured_at DESC"
+
+		rows, err := pool.Query(r.Context(), query, args...)
 		if err != nil {
 			http.Error(w, "DB query error:", http.StatusInternalServerError)
 			return
